@@ -78,6 +78,12 @@ This document is the **single source of truth** for the Backup/Restore app as de
 - **Cleanup** page (`/cleanup`): wipe config; if already installed, requires token; optional wipe of SQLite metadata.
 - Ensured everything is **cPanel/Bluehost‑friendly**.
 
+### Implementation Gaps After Milestone 3
+
+- The installer writes `config.php` with `0600` but lacks interactive guidance for manual permission fixes and does not offer the documented `0640` fallback.
+- `POST /install` does not prevent repeated submissions when a configuration already exists, allowing the installer to run more than once.
+- The repository still ships with a placeholder `Flight.php`; the official Flight micro‑framework has not been integrated yet.
+
 ---
 
 ## Key Design Decisions
@@ -333,11 +339,15 @@ install -m 600 -o www-data -g www-data /path/to/config.php /home/www-data/.backu
 
 ## Known Limitations / Future Work
 
-- No scheduling (cron).  
-- No incremental/differential.  
-- No per-file hashes.  
-- No GPG encryption.  
-- Limited restore path validation.  
+The following items are not yet implemented and are slated for future milestones:
+
+- No scheduling (cron).
+- No incremental/differential backups.
+- No per-file hashes.
+- No GPG encryption.
+- Limited restore path validation.
+- Placeholder `Flight.php` still bundled; swap in official library.
+- Installer improvements: enforce single execution and provide in-app permission remediation with optional `0640` fallback.
 
 ---
 
