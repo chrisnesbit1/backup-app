@@ -2,3 +2,4 @@ data/*
 !data/.gitkeep
 app.db
 config.php
+phpunit
