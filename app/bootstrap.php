@@ -1,6 +1,7 @@
 <?php
 // Bootstrap file: loads helpers and sets up application context.
-require __DIR__ . '/lib/flight/Flight.php';
+require dirname(__DIR__, 1) . '/vendor/autoload.php';
+//require __DIR__ . '/lib/flight/Flight.php';
 require __DIR__ . '/helpers.php';
 require __DIR__ . '/db.php';
 require __DIR__ . '/s3.php';

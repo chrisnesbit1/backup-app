@@ -18,4 +18,6 @@ require __DIR__ . '/../app/controllers/CleanupController.php';
 require __DIR__ . '/../app/controllers/BackupController.php';
 require __DIR__ . '/../app/controllers/RestoreController.php';
 
+Flight::route('GET /health', fn() => 'ok');
+
 Flight::start();
