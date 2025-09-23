@@ -21,7 +21,8 @@ Flight::route('POST /cleanup', function () {
     }
     @unlink(CONFIG_DIR . '/config.php');
     if (!empty($_POST['wipe_db'])) {
-        @unlink(__DIR__ . '/../../data/app.db');
+        $pathsInfo = Flight::get('paths');
+        @unlink($pathsInfo['database']);
     }
     echo 'Cleaned';
 });

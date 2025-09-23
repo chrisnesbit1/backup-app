@@ -124,7 +124,7 @@ This document is the **single source of truth** for the Backup/Restore app as de
         \           |           /    \                            |
          \          |          /      \                           |
           \         v         v        \                          v
-           +--> [config.php outside web root] <---> [SQLite: tokens, backups]
+           +--> [CONFIG_DIR (config.php + app.db)] <---> [SQLite: tokens, backups]
                          |                                ^
                          v                                |
 [ API Client ] --->  /api/* (Bearer token)  --------------+
@@ -142,7 +142,7 @@ This document is the **single source of truth** for the Backup/Restore app as de
 backup-app/
 ├─ public/
 │  ├─ .htaccess                 # front controller routing
-│  └─ index.php                 # resolves CONFIG_DIR, boots Flight, registers routes
+│  └─ index.php                 # resolves CONFIG_DIR/STORAGE_DIR/DB_PATH, boots Flight, registers routes
 ├─ app/
 │  ├─ lib/flight/Flight.php     # single-file Flight (replace placeholder with real library)
 │  ├─ bootstrap.php             # wiring (helpers/db/s3), data dir perms, Flight registry
@@ -161,7 +161,7 @@ backup-app/
 │     ├─ install.php
 │     ├─ update.php
 │     └─ cleanup.php
-└─ data/                        # sqlite db (app.db) and temp usage; chmod 0700
+└─ data/                        # portable runtime root (config/, storage/)
 ```
 
 ---
@@ -178,7 +178,7 @@ backup-app/
 
 ## Configuration Model
 
-- Stored in **`~/.backupapp/config.php`** (outside web root when HOME is discoverable).
+- Stored in **`CONFIG_DIR/config.php`** (`CONFIG_DIR` defaults to `<project root>/data/config` but can be overridden with `BACKUPAPP_CONFIG_DIR` or by defining the constant before bootstrap).
 - PHP returns an array (no `.env`, no INI). Example:
 
 ```php
@@ -211,8 +211,13 @@ return [
 
 Permissions enforced:
 - `config.php` → 0600
-- `~/.backupapp/` → 0700
-- `data/` → 0700
+- `CONFIG_DIR` → 0700
+- `STORAGE_DIR` (defaults to `<project root>/data/storage`) → 0700
+
+Environment overrides:
+- `BACKUPAPP_CONFIG_DIR` (or defining `CONFIG_DIR`) sets the portable configuration root.
+- `BACKUPAPP_STORAGE_DIR` (or defining `STORAGE_DIR`) selects where local copies/restores live.
+- `BACKUPAPP_DB_PATH` (or defining `DB_PATH`) sets the SQLite file; defaults to `CONFIG_DIR/app.db`.
 
 ---
 

@@ -7,7 +7,9 @@ Flight::route('POST /api/restore', function () {
     require_auth($config, $db);
     $payload = json_decode(file_get_contents('php://input'), true);
     $id = $payload['backup_id'] ?? $payload['id'] ?? null;
-    $target = $payload['target'] ?? __DIR__ . '/../../data/restore';
+    $pathsInfo = Flight::get('paths');
+    $defaultTarget = $pathsInfo['storage'] . '/restore';
+    $target = $payload['target'] ?? $defaultTarget;
     $verifyOnly = !empty($payload['verify_only']);
     $restoreCmd = $payload['restore_cmd'] ?? '';
     $restoreDb = !empty($payload['restore_db']);
@@ -39,6 +41,11 @@ Flight::route('POST /api/restore', function () {
     if ($verifyOnly) {
         rrmdir($tmp);
         Flight::json(['verified' => true]);
+        return;
+    }
+    if (!is_dir($target) && !mkdir($target, 0700, true) && !is_dir($target)) {
+        rrmdir($tmp);
+        Flight::json(['error' => 'target_dir'], 500);
         return;
     }
     $zip = new ZipArchive();
