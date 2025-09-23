@@ -62,13 +62,20 @@ Flight::route('POST /api/backup', function () {
         }
     }
     if (($config['storage'] ?? 'S3_ONLY') === 'LOCAL_AND_S3') {
-        $dataDir = __DIR__ . '/../../data/';
-        foreach ($files as $key => $path) {
-            rename($path, $dataDir . $key);
+        $pathsInfo = Flight::get('paths');
+        $storageDir = $pathsInfo['storage'];
+        if (!is_dir($storageDir)) {
+            mkdir($storageDir, 0700, true);
         }
-    } else {
-        rrmdir($tmp);
+        foreach ($files as $key => $path) {
+            if (!rename($path, $storageDir . '/' . $key)) {
+                rrmdir($tmp);
+                Flight::json(['error' => 'local_store'], 500);
+                return;
+            }
+        }
     }
+    rrmdir($tmp);
     $stmt = $db->prepare('INSERT INTO backups(filename, created_at) VALUES(?, ?)');
     $stmt->execute([$filename, gmdate('c')]);
     $id = $db->lastInsertId();

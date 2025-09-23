@@ -6,11 +6,22 @@ require __DIR__ . '/helpers.php';
 require __DIR__ . '/db.php';
 require __DIR__ . '/s3.php';
 
-// Ensure data directory exists
-if (!is_dir(__DIR__ . '/../data')) {
-    mkdir(__DIR__ . '/../data', 0700, true);
+// Ensure runtime directories exist
+foreach ([CONFIG_DIR, STORAGE_DIR, dirname(DB_PATH)] as $dir) {
+    if ($dir !== '' && !is_dir($dir)) {
+        mkdir($dir, 0700, true);
+    }
 }
 
-$config = load_config(CONFIG_DIR . '/config.php');
+$configPath = CONFIG_DIR . '/config.php';
+$config = load_config($configPath);
+
 Flight::set('config', $config);
-Flight::set('db', get_db(__DIR__ . '/../data/app.db'));
+Flight::set('config_path', $configPath);
+Flight::set('paths', [
+    'root' => APP_ROOT,
+    'config' => CONFIG_DIR,
+    'storage' => STORAGE_DIR,
+    'database' => DB_PATH,
+]);
+Flight::set('db', get_db(DB_PATH));
